@@ -1,6 +1,6 @@
 env_1/
 *.env_1/
-document_portal.egg-info
+document_portal_1.egg-info
 .env
 venv/
 __pychache__/
