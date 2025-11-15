@@ -1,0 +1,206 @@
+# Simple custom logger
+
+# import logging
+# import os
+# from datetime import datetime
+
+
+# class CustomLogger:
+#     def __init__(self, log_dir="logs"):
+#         # Ensure logs directory exists
+#         self.logs_dir = os.path.join(os.getcwd(), log_dir)
+#         os.makedirs(self.logs_dir, exist_ok=True)
+
+
+#         # Create timestamped log file name
+#         log_file = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
+#         log_file_path = os.path.join(self.logs_dir, log_file)
+
+#         # Configure logging
+#         logging.basicConfig(
+#             filename=log_file_path,
+#             format="[ %(asctime)s ] %(levelname)s %(name)s (line:%(lineno)d) - %(message)s",
+#             level=logging.INFO
+#         )
+
+#     def get_Logger(self, name=__file__):
+#         return logging.getLogger(os.path.basename(name))
+
+
+# if __name__ == "__main__":
+#     logger = CustomLogger()
+#     log = logger.get_Logger(__file__)
+#     log.info("Custom logger initialised.")
+
+
+# CustomLogger with file handler and console handler
+
+# import logging
+# import os
+# from datetime import datetime
+
+# class CustomLogger:
+#     def __init__(self, log_dir="logs"):
+#         # Ensure log directory exists
+#         self.logs_dir = os.path.join(os.getcwd(), log_dir)
+#         os.makedirs(self.logs_dir, exist_ok=True)
+
+#         # Create timestamped log file
+#         log_file = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
+#         self.log_file_path = os.path.join(self.logs_dir, log_file)
+
+#     def get_logger(self, name=__file__):
+#         """
+#         Returns a logger instance with file + console handlers.
+#         Default name is the current file name (without path).
+#         """
+#         logger_name = os.path.basename(name)
+#         logger = logging.getLogger(logger_name)
+#         logger.setLevel(logging.INFO)
+
+#         # Formatter for both handlers
+#         file_formatter = logging.Formatter(
+#             "[%(asctime)s ] %(levelname)s %(name)s (line:%(lineno)d) - %(message)s"
+#         )
+
+#         console_formatter = logging.Formatter(
+#             "[ %(levelname)s ] %(message)s"
+#         )
+
+#         # File handler (logs saved to file)
+#         file_handler = logging.FileHandler(self.log_file_path)
+#         file_handler.setFormatter(file_formatter)
+
+#         # Console handler
+#         console_handler = logging.StreamHandler()
+#         console_handler.setFormatter(console_formatter)
+
+#         # Avoid duplicate handlers if logger is reused
+#         if not logger.handlers:
+#             logger.addHandler(file_handler)
+#             logger.addHandler(console_handler)
+
+#         return logger
+
+
+# # Usage Example
+# if __name__ == "__main__":
+#     # Logger will use file name as its name
+#     logger = CustomLogger().get_logger(__file__)
+#     logger.info("Logger initialised successfully")
+
+# CustomLogger with rotating file handler and console handler
+# Python’s logging.handlers module provides a RotatingFileHandler, which automatically
+# creates new log files when the current one reaches a certain size or at a scheduled interval.
+
+# import logging
+# import os
+# from datetime import datetime
+# from logging.handlers import RotatingFileHandler
+
+
+# class CustomLogger:
+#     def __init__(self, log_dir="logs", max_bytes=5*1024*1024, backup_count=3):
+#         self.logs_dir = os.path.join(os.getcwd(), log_dir)
+#         os.makedirs(self.logs_dir, exist_ok=True)
+#         log_file = f"{datetime.now().strftime('%m_%d_%Y')}.log"
+#         self.log_file_path = os.path.join(self.logs_dir, log_file)
+#         self.max_bytes = max_bytes
+#         self.backup_count = backup_count
+
+#     def get_logger(self, name=__file__, log_level=logging.INFO):
+#         logger_name = os.path.basename(name)
+#         logger = logging.getLogger(logger_name)
+#         logger.setLevel(log_level)
+
+#         file_formatter = logging.Formatter(
+#             "[%(asctime)s ] %(levelname)s %(name)s (line:%(lineno)d) - %(message)s"
+#         )
+#         console_formatter = logging.Formatter(
+#             "[ %(levelname)s ] %(message)s"
+#         )
+
+#         # Rotating file handler
+#         file_handler = RotatingFileHandler(
+#             self.log_file_path,
+#             maxBytes=self.max_bytes,
+#             backupCount=self.backup_count
+#         )
+#         file_handler.setFormatter(file_formatter)
+
+#         console_handler = logging.StreamHandler()
+#         console_handler.setFormatter(console_formatter)
+
+#         if not logger.handlers:
+#             logger.addHandler(file_handler)
+#             logger.addHandler(console_handler)
+
+#         return logger
+
+
+# # Usage++
+# if __name__ == "__main__":
+#     logger = CustomLogger().get_logger(__file__, log_level=logging.DEBUG)
+#     logger.info("Logger with rotation initialised.")
+#     logger.debug("Debug message example.")
+
+
+# Improved version(with structured log) of CustomLogger with file handler and console handler
+# This can be used in production
+import logging
+import os
+from datetime import datetime
+import structlog
+
+
+class CustomLogger:
+
+    def __init__(self, log_dir="logs"):
+        # Ensure logs directory exists
+        self.logs_dir = os.path.join(os.getcwd(), log_dir)
+        os.makedirs(self.logs_dir, exist_ok=True)
+
+        # Timestamped log file (for persistence)
+        log_file = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
+        self.log_file_path = os.path.join(self.logs_dir, log_file)
+
+    def get_logger(self, name=__file__):
+        logger_name = os.path.basename(name)
+
+        # Configure logging for console + file (both JSON)
+        file_handler = logging.FileHandler(self.log_file_path)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter(
+            "%(message)s"))  # Raw JSON lines
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter("%(message)s"))
+
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(message)s",  # Structlog will handle JSON rendering
+            handlers=[console_handler, file_handler]
+        )
+
+        # Configure structlog for JSON structured logging
+        structlog.configure(
+            processors=[
+                structlog.processors.TimeStamper(
+                    fmt="iso", utc=True, key="timestamp"),
+                structlog.processors.add_log_level,
+                structlog.processors.EventRenamer(to="event"),
+                structlog.processors.JSONRenderer()
+            ],
+            logger_factory=structlog.stdlib.LoggerFactory(),
+            cache_logger_on_first_use=True
+        )
+
+        return structlog.get_logger(logger_name)
+
+
+# Usage++
+if __name__ == "__main__":
+    logger = CustomLogger().get_logger(__file__)
+    logger.info("User uploaded a file", user_id=123, filename="report.pdf")
+    logger.error("Failed to process PDF", error="File not found", user_id=123)
