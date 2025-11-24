@@ -11,16 +11,16 @@ from datetime import datetime, timezone
 
 
 class SingleDocIngestor:
-    def __init__(self, data_dir: str = "data\single_document_chat", faiss_dir: str = "faiss_index"):
+    def __init__(self, data_dir: str = "data/single_document_chat", faiss_dir: str = "faiss_index"):
         try:
             self.log = CustomLogger().get_logger(__name__)
-            self.base_dir = Path(data_dir)
-            self.base_dir.mkdir(parents=True, exist_ok=True)
+            self.data_dir = Path(data_dir)
+            self.data_dir.mkdir(parents=True, exist_ok=True)
             self.faiss_dir = Path(faiss_dir)
             self.faiss_dir.mkdir(parents=True, exist_ok=True)
             self.model_loader = ModelLoader()
             self.log.info("SingleDocumentIngestor Initialised", temp_path=str(
-                self.base_dir), faiss_path=str(faiss_dir))
+                self.data_dir), faiss_path=str(faiss_dir))
         except Exception as e:
             self.log.error(
                 "Failed to initialise SingleDocIngestor", error=str(e))
@@ -32,7 +32,7 @@ class SingleDocIngestor:
             documents = []
             for uploaded_file in uploaded_files:
                 unique_filename = f"session_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.pdf"
-                temp_path = self.base_dir/unique_filename
+                temp_path = self.data_dir/unique_filename
 
                 with open(temp_path, "wb") as f_out:
                     f_out.write(uploaded_file.read())
@@ -58,7 +58,7 @@ class SingleDocIngestor:
             embeddings = self.model_loader.load_embeddings()
             vectorstore = FAISS.from_documents(
                 documents=chunks, embedding=embeddings)
-
+            # save FAISS index
             vectorstore.save_local(str(self.faiss_dir))
             self.log.info("FAISS index created and saved",
                           faiss_path=str(self.faiss_dir))
