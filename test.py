@@ -112,6 +112,7 @@ from langchain_community.vectorstores import FAISS
 from src.single_document_chat.data_ingestion import SingleDocIngestor
 from src.single_document_chat.retrieval import CoversationalRAG
 from utils.model_loader import ModelLoader
+from logger.custom_logger import CustomLogger
 
 FAISS_INDEX_PATH = Path("faiss_index")
 
@@ -155,5 +156,4 @@ if __name__ == "__main__":
         print(f"PDF file does not exist at {pdf_path}")
         sys.exit(1)
 
-    # Run the test
     test_conversational_rag_on_pdf(pdf_path, question)

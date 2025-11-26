@@ -1,10 +1,10 @@
 import sys
 import os
-from functools import partial
+import streamlit as st
 from dotenv import load_dotenv
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
-# deprecated --> from langchain.vectorstores import FAISS
+# deprecated --> from langchain.vectorstores import FAISS. Use this langchain_community.vectorstores
 from langchain_community.vectorstores import FAISS
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
@@ -34,10 +34,8 @@ class CoversationalRAG:
             self.rag_chain = create_retrieval_chain(
                 self.history_aware_retriever, self.qa_chain)
             self.log.info("Created RAG chain", session_id=session_id)
-            get_history_callable = partial(
-                self._get_session_history, self.session_id)
             self.chain = RunnableWithMessageHistory(
-                self.rag_chain, get_history_callable, input_messages_key="input", history_messages_key="chat_history", output_messages_key="answer")
+                self.rag_chain, self._get_session_history, input_messages_key="input", history_messages_key="chat_history", output_messages_key="answer")
             self.log.info("Created RunnableWithMessageHistory",
                           session_id=session_id,)
 
@@ -57,12 +55,18 @@ class CoversationalRAG:
             self.log.error("Error loading LLM via Modelloader", error=str(e))
             raise DocumentPortalException("Error loading LLM", sys)
 
-    def _get_session_history(self, session_id: str):
+    def _get_session_history(self, session_id: str) -> BaseChatMessageHistory:
         try:
-            hist = ChatMessageHistory(session_id=session_id)
-            # ensure it's not None and has messages attribute
-            if hist is not None and hasattr(hist, "messages"):
-                return hist
+            if "store" not in st.session_state:
+                st.session_state.store = {}
+
+            if session_id not in st.session_state.store:
+                st.session_state.store[session_id] = ChatMessageHistory()
+                self.log.info("New chat session history created",
+                              session_id=session_id)
+
+            return st.session_state.store[session_id]
+
         except Exception as e:
             self.log.error("Failed to access session history",
                            session_id=session_id, error=str(e))
