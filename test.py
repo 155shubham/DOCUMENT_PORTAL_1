@@ -170,7 +170,7 @@ def test_document_ingestion_and_rag():
     try:
         test_files = [
             "data\\multi_doc_chat\\market_analysis_report.docx",
-            "data\\multi_doc_chat\\NIPS-2017-attention-is-all-you-need-Paper.pdf"
+            "data\\multi_doc_chat\\NIPS-2017-attention-is-all-you-need-Paper.pdf",
             "data\\multi_doc_chat\\sample.pdf",
             "data\\multi_doc_chat\\state_of_the_union.txt"
         ]
@@ -181,6 +181,8 @@ def test_document_ingestion_and_rag():
                 uploaded_files.append(open(file_path, "rb"))
             else:
                 print(f"File does not exist: {file_path}")
+
+        print("uploaded_files: ", uploaded_files)
 
         if not uploaded_files:
             print("No valid files to upload. Exiting test.")
@@ -208,4 +210,3 @@ def test_document_ingestion_and_rag():
 
 if __name__ == "__main__":
     test_document_ingestion_and_rag()
-#     # Example PDF paths

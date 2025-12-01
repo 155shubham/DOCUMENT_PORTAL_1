@@ -5,11 +5,11 @@ from langchain_community.vectorstores import FAISS
 from exception.custom_exception import DocumentPortalException
 from logger.custom_logger import CustomLogger
 from utils.model_loader import ModelLoader
-from prompt.prompt_library import PROMPT_REGISTRT
+from prompt.prompt_library import PROMPT_REGISTRY
 from model.models import PromptType
 from langchain.prompts.chat import ChatPromptTemplate
 from operator import itemgetter
-from langchain.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser
 from typing import List, Optional
 from langchain_core.messages import BaseMessage
 
@@ -20,9 +20,9 @@ class ConversationalRAG:
             self.log = CustomLogger().get_logger(__name__)
             self.session_id = session_id
             self.llm = self._load_llm()
-            self.contextualize_prompt: ChatPromptTemplate = PROMPT_REGISTRT[
+            self.contextualize_prompt: ChatPromptTemplate = PROMPT_REGISTRY[
                 PromptType.CONTEXTUALIZE]
-            self.qa_prompt: ChatPromptTemplate = PROMPT_REGISTRT[
+            self.qa_prompt: ChatPromptTemplate = PROMPT_REGISTRY[
                 PromptType.CONTEXT_QA]
 
             if retriever is None:

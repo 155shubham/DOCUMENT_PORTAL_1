@@ -17,8 +17,8 @@ class DocumentIngestor:
         try:
             self.SUPPORTED_EXTENSIONS = SUPPORTED_EXTENSIONS
             self.log = CustomLogger().get_logger(__name__)
-            self.temp_dir = temp_dir
-            self.faiss_dir = faiss_dir
+            self.temp_dir = Path(temp_dir)
+            self.faiss_dir = Path(faiss_dir)
             self.temp_dir.mkdir(parents=True, exist_ok=True)
             self.faiss_dir.mkdir(parents=True, exist_ok=True)
 
