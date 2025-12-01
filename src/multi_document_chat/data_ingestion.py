@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
 
-class DocumentIngestion:
+class DocumentIngestor:
     def __init__(self, temp_dir: str = "data/multi_document_chat", faiss_dir: str = "faiss_index", sesion_id: str | None = None):
         try:
             self.SUPPORTED_EXTENSIONS = SUPPORTED_EXTENSIONS
@@ -45,7 +45,7 @@ class DocumentIngestion:
             raise DocumentPortalException(
                 "Initialization error in DocumentIngestor", sys)
 
-    def ingest(self, uploaded_files):
+    def ingest_files(self, uploaded_files):
         # Logic to ingest documents from the specified source
         try:
             documents = []
