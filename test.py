@@ -164,16 +164,26 @@ import sys
 from pathlib import Path
 from src.multi_document_chat.data_ingestion import DocumentIngestor
 from src.multi_document_chat.retrieval import ConversationalRAG
+import os
 
 
 def test_document_ingestion_and_rag():
     try:
+        # os.chdir(r"D:\Agentic_AI\Practice\DOCUMENT_PORTAL_1")
+        print("Current working dir:", Path.cwd())
         test_files = [
-            "data\\multi_doc_chat\\market_analysis_report.docx",
-            "data\\multi_doc_chat\\NIPS-2017-attention-is-all-you-need-Paper.pdf",
-            "data\\multi_doc_chat\\sample.pdf",
-            "data\\multi_doc_chat\\state_of_the_union.txt"
+            "data\\multi_document_chat\\market_analysis_report.docx",
+            "data\\multi_document_chat\\NIPS-2017-attention-is-all-you-need-Paper.pdf",
+            "data\\multi_document_chat\\sample.pdf",
+            "data\\multi_document_chat\\state_of_the_union.txt"
         ]
+
+        # test_files = [
+        #     "D:\\Agentic_AI\\Practice\\DOCUMENT_PORTAL_1\\data\\multi_document_chat\\market_analysis_report.docx",
+        #     "D:\\Agentic_AI\\Practice\\DOCUMENT_PORTAL_1\\data\\multi_document_chat\\NIPS-2017-attention-is-all-you-need-Paper.pdf",
+        #     "D:\\Agentic_AI\\Practice\\DOCUMENT_PORTAL_1\\data\multi_document_chat\\sample.pdf",
+        #     "D:\\Agentic_AI\\Practice\\DOCUMENT_PORTAL_1\\data\multi_document_chat\\state_of_the_union.txt"
+        # ]
 
         uploaded_files = []
         for file_path in test_files:

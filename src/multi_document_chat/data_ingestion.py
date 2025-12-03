@@ -21,7 +21,7 @@ class DocumentIngestor:
             self.faiss_dir = Path(faiss_dir)
             self.temp_dir.mkdir(parents=True, exist_ok=True)
             self.faiss_dir.mkdir(parents=True, exist_ok=True)
-
+            self.log.info(f"temp_dir: {self.temp_dir}, faiss_dir: {self.faiss_dir}")
             # sessionized paths
             self.sesion_id = sesion_id or f"session_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
             self.sesion_temp_dir = self.temp_dir/self.sesion_id
@@ -50,27 +50,30 @@ class DocumentIngestor:
         try:
             documents = []
             for uploaded_file in uploaded_files:
+                self.log.info("in uploaded section")
                 ext = Path(uploaded_file.name).suffix.lower()
+                original_name = Path(uploaded_file.name).name
                 if ext not in self.SUPPORTED_EXTENSIONS:
                     self.log.warning("Unsupported file skipped",
                                      filename=uploaded_file.name)
                     continue
-                temp_path = self.sesion_temp_dir/uploaded_file.name
+                unique_filename = f"{uuid.uuid4().hex}{ext}"
+                temp_path = self.sesion_temp_dir/unique_filename
 
                 with open(temp_path, "wb") as f_out:
                     f_out.write(uploaded_file.read())
                 self.log.info("File saved for ingestion",
-                              filename=uploaded_file.name)
+                              filename=uploaded_file.name, saved_as=str(temp_path), session_id=self.sesion_id)
 
                 if ext == ".pdf":
                     loader = PyPDFLoader(str(temp_path))
                 elif ext == ".docx":
                     loader = Docx2txtLoader(str(temp_path))
                 elif ext == ".txt":
-                    loader = TextLoader(str(temp_path))
+                    loader = TextLoader(str(temp_path), encoding="utf-8")
                 else:
                     self.log.warning("Unsupported file type encountered",
-                                     filename=uploaded_file.name, extension=ext)
+                                     filename=uploaded_file.name)
                     continue
 
                 docs = loader.load()

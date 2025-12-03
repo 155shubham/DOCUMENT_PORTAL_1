@@ -1,5 +1,5 @@
-env_1/
-*.env_1/
+Document_Portal_1_env/
+*.Document_Portal_1_env/
 document_portal_1.egg-info
 .env
 venv/

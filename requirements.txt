@@ -13,4 +13,6 @@ pandas
 streamlit
 langchain-core[tracing]
 pytest
+docx2txt # dependency for PyPDFLoader
+
 -e .

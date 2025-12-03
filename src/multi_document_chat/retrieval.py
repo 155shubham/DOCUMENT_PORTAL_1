@@ -7,7 +7,7 @@ from logger.custom_logger import CustomLogger
 from utils.model_loader import ModelLoader
 from prompt.prompt_library import PROMPT_REGISTRY
 from model.models import PromptType
-from langchain.prompts.chat import ChatPromptTemplate
+from langchain_core.prompts.chat import ChatPromptTemplate
 from operator import itemgetter
 from langchain_core.output_parsers import StrOutputParser
 from typing import List, Optional
@@ -21,7 +21,7 @@ class ConversationalRAG:
             self.session_id = session_id
             self.llm = self._load_llm()
             self.contextualize_prompt: ChatPromptTemplate = PROMPT_REGISTRY[
-                PromptType.CONTEXTUALIZE]
+                PromptType.CONTEXTUALIZE_QUESTION]
             self.qa_prompt: ChatPromptTemplate = PROMPT_REGISTRY[
                 PromptType.CONTEXT_QA]
 
@@ -36,7 +36,7 @@ class ConversationalRAG:
             self.log.error("Failed to initialize ConversationalRAG",
                            error=str(e))
             raise DocumentPortalException(
-                "Initializing Error in ConversationalRAG", sys)
+                "Failed to initialize ConversationalRAG", sys)
 
     def load_retriever_from_faiss(self, index_path: str):
         # Logic to load a FAISS retriever from the specified index path
@@ -65,9 +65,9 @@ class ConversationalRAG:
         Invoke the Conversational RAG chain with the given input and chat history.
         """
         try:
-            chat_history = chat_history | []
+            chat_history = chat_history or []
             payload = {
-                "input": input,
+                "input": user_input,
                 "chat_history": chat_history
             }
             answer = self.chain.invoke(payload)
@@ -88,8 +88,10 @@ class ConversationalRAG:
     def _load_llm(self):
         # Logic to load the language model
         try:
-            self.llm = self.model_loader.load_llm()
-            return self.llm
+            llm = ModelLoader().load_llm()
+            if not llm:
+                raise ValueError("LLM could not be loaded")
+            return llm
         except Exception as e:
             self.log.error("Failed to load LLM", error=str(e))
             raise DocumentPortalException("Error loading LLM", sys)
@@ -106,7 +108,7 @@ class ConversationalRAG:
         # Logic to build the LCE (Language-Conditioned Extraction) chain
         try:
             # Rewrite question using chat history
-            question_rewriter = {
+            question_rewriter = (
                 {
                     "input": itemgetter("input"),
                     "chat_history": itemgetter("chat_history")
@@ -114,13 +116,13 @@ class ConversationalRAG:
                 | self.contextualize_prompt
                 | self.llm
                 | StrOutputParser()
-            }
+            )
 
             # Retrieve documents based on rewritten question
             retrieve_docs = question_rewriter | self.retriever | self.format_docs
 
             # Feed context + original input + chat history into answer prompt
-            self.chain = {
+            self.chain = (
                 {
                     "context": retrieve_docs,
                     "input": itemgetter("input"),
@@ -129,7 +131,7 @@ class ConversationalRAG:
                 | self.qa_prompt
                 | self.llm
                 | StrOutputParser()
-            }
+            )
 
             self.log.info("LCEL graph built successfully",
                           session_id=self.session_id)
