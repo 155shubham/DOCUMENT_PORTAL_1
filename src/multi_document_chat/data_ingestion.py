@@ -9,7 +9,7 @@ from exception.custom_exception import DocumentPortalException
 from utils.model_loader import ModelLoader
 from datetime import datetime, timezone
 
-SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
+SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
 
 
 class DocumentIngestor:
