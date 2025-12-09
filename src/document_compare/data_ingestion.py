@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 import fitz  # PyMuPDF
 from logger.custom_logger import CustomLogger
-from exception.custom_exception import DocumentPortalException
+from exception.custom_exception_archive import DocumentPortalException
 from datetime import datetime, timezone
 import uuid
 

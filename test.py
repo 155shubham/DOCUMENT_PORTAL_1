@@ -169,7 +169,6 @@ import os
 
 def test_document_ingestion_and_rag():
     try:
-        # os.chdir(r"D:\Agentic_AI\Practice\DOCUMENT_PORTAL_1")
         print("Current working dir:", Path.cwd())
         test_files = [
             "data\\multi_document_chat\\market_analysis_report.docx",
@@ -186,19 +185,21 @@ def test_document_ingestion_and_rag():
         # ]
 
         uploaded_files = []
+
         for file_path in test_files:
             if Path(file_path).exists():
                 uploaded_files.append(open(file_path, "rb"))
             else:
                 print(f"File does not exist: {file_path}")
 
-        print("uploaded_files: ", uploaded_files)
+        # print("uploaded_files: ", uploaded_files)
 
         if not uploaded_files:
             print("No valid files to upload. Exiting test.")
             sys.exit(1)
 
         ingestor = DocumentIngestor()
+
         retriever = ingestor.ingest_files(uploaded_files)
 
         for f in uploaded_files:
@@ -206,13 +207,20 @@ def test_document_ingestion_and_rag():
 
         session_id = "test_multi_doc_chat"
 
-        rag = ConversationalRAG(retriever=retriever,
-                                session_id="test_multi_doc_chat")
-        question = "What is attention is all you need paper about?"
+        rag = ConversationalRAG(session_id=session_id, retriever=retriever)
+        
+        question = "what is President Zelenskyy said in their speech in parliament?"
 
         response = rag.invoke(user_input=question)
+
         print(f"\n Question: {question}")
+
         print("Answer:", response)
+
+        if not uploaded_files:
+            print("No valid files to upload.")
+            sys.exit(1)
+        
     except Exception as e:
         print(f"Test failed: {str(e)}")
         sys.exit(1)

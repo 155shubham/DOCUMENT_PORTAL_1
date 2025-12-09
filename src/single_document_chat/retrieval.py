@@ -11,7 +11,7 @@ from langchain.chains import create_history_aware_retriever, create_retrieval_ch
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from prompt.prompt_library import PROMPT_REGISTRY
 from utils.model_loader import ModelLoader
-from exception.custom_exception import DocumentPortalException
+from exception.custom_exception_archive import DocumentPortalException
 from logger.custom_logger import CustomLogger
 from model.models import PromptType
 

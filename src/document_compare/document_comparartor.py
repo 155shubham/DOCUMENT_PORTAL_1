@@ -2,7 +2,7 @@ import sys
 from dotenv import load_dotenv
 import pandas as pd
 from logger.custom_logger import CustomLogger
-from exception.custom_exception import DocumentPortalException
+from exception.custom_exception_archive import DocumentPortalException
 from model.models import SummaryResponse, PromptType
 from prompt.prompt_library import PROMPT_REGISTRY
 from utils.model_loader import ModelLoader
