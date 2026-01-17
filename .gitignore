@@ -8,3 +8,4 @@ logs/
 *.pyc
 faiss_index
 faiss_index/
+archive/
